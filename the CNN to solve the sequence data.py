@@ -66,6 +66,99 @@ print('x_train shape:',x_train.shape)
 #testing sequences tensor of shape=(25000,500)
 print('x_test shape:',x_test.shape)
 
+def generator(data, lookback, delay, min_index, max_index,
+                shuffle=False, batch_size=128, step=6):
+    
+    if max_index is None:
+        
+        max_index = len(data) - delay - 1
+    
+    i = min_index + lookback
+    
+    while 1:
+        
+        if shuffle:
+            
+            rows = np.random.randint(
+                    
+                    min_index + lookback, max_index, size=batch_size)
+        else:
+            
+            if i + batch_size >= max_index:
+                
+                i = min_index + lookback
+            
+            rows = np.arange(i, min(i + batch_size, max_index))
+            
+            i += len(rows)
+
+        samples = np.zeros((len(rows),
+                            lookback // step,
+                            data.shape[-1]))
+        
+        targets = np.zeros((len(rows),))
+        
+        for j, row in enumerate(rows):
+            
+            indices = range(rows[j] - lookback, rows[j], step)
+            
+            samples[j] = data[indices]
+            
+            targets[j] = data[rows[j] + delay][1]
+        
+        yield samples, targets    
+        
+#After we created the generator function,  we also need to create 3 generators:training sets,validation sets,testing sets.
+
+#Create the training sets,validation sets,testing sets
+
+lookback=1440
+
+step=6
+
+delay=144
+
+batch_size=128
+
+#Training sets generator:
+
+train_gen = generator(float_data,
+                        lookback=lookback,
+                        delay=delay,
+                        min_index=0,
+                        max_index=200000,
+                        shuffle=True,
+                        step=step,
+                        batch_size=batch_size)
+
+#validation sets generator:
+
+val_gen = generator(float_data,
+                        lookback=lookback,
+                        delay=delay,
+                        min_index=200001,
+                        max_index=300000,
+                        step=step,
+                        batch_size=batch_size)
+
+#testing sets generator:
+
+test_gen = generator(float_data,
+                        lookback=lookback,
+                        delay=delay,
+                        min_index=300001,
+                        max_index=None,
+                        step=step,
+                        batch_size=batch_size)
+#the number of validating rounds:
+
+val_steps = (300000 - 200001 - lookback)  // batch_size # How many steps to draw from
+            # val_gen in order to see the entire validation set
+
+#the number of testing rounds:
+
+test_steps = (len(float_data) - 300001 - lookback)  // batch_size # How many steps to draw
+
 #Second step: Create the 2 1-D CNN to implement the mission
 
 from keras.models import Sequential

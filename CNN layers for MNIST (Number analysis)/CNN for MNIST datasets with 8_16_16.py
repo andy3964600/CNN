@@ -12,7 +12,7 @@
 #_________________________________________________________________
 #Layer (type)                 Output Shape              Param #   
 #=================================================================
-#conv2d_1 (Conv2D)           (None, 26, 26, 8)         80        
+#conv2d_1 (Conv2D)           (None, 26, 26, 8)         80()        
 #_________________________________________________________________
 #max_pooling2d_1 (MaxPooling (None, 13, 13, 8)         0         
 #_________________________________________________________________
@@ -72,7 +72,7 @@ model.add(layers.Conv2D(16,
 
 #The last Conv2D output 3D tensor(shape=(3,3,64)).Next, we need to trans it to next NN.
 
-#We flat the 3D tensor to 1D array (3*3*64=576).
+#We flat the shape(28,28)->(784).
 
 model.add(layers.Flatten())
 

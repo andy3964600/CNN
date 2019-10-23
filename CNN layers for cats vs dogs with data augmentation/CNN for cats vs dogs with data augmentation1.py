@@ -311,6 +311,7 @@ history=model.fit_generator(train_generator,
                             validation_data=validation_generator,
                             validation_steps=50)
 
+
 import matplotlib.pyplot as plt
 
 acc=history.history['acc']
